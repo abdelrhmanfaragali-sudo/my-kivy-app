@@ -7,17 +7,26 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build APK with Buildozer
-        uses: ArtemSydoryk/buildozer-action@v1.2
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          command: buildozer -v android debug
-          subfolder: .
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixin-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev openjdk-17-jdk zip unzip autoconf libtool pkg-config
+          python -m pip install --upgrade pip setuptools buildozer kivy
+
+      - name: Build APK with Buildozer
+        run: |
+          buildozer -v android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
